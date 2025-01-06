@@ -282,12 +282,9 @@ export default function Lab1() {
 
       <div id="wd-anchor">
         <h4>Anchor tag</h4>
-        Please
-        <a href="https://www.lipsum.com" id="wd-lipsum">
-          click here
-        </a>
-        to get dummy text
+        <a href="wikipedia.com">Wikipedia</a>
         <br />
+        <a href="https://github.com/russell-leung/kambaz-react-web-app">GitHub</a>
       </div>
     </div>
   );

@@ -93,7 +93,7 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Card className="p-3">
-              <Form.Select defaultValue="Online">
+              <Form.Select id="submissionType" defaultValue="Online">
                 <option>Online</option>
               </Form.Select>
 

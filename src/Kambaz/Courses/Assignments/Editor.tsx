@@ -1,38 +1,24 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { Form } from "react-bootstrap";
+import { Link, useParams } from "react-router";
+import * as db from "../../Database";
 
 export default function AssignmentEditor() {
+  const { aid, cid } = useParams<{ aid: string, cid: string }>();
+  const assignment = db.assignments.find(
+    (assignment) => assignment._id === aid
+  );
   return (
     <div className="p-4 pt-0">
       <Form>
         <Form.Group controlId="assignmentName">
           <Form.Label>Assignment Name</Form.Label>
-          <Form.Control type="text" defaultValue="A1" />
+          <Form.Control type="text" defaultValue={assignment?.title} />
         </Form.Group>
 
-        <Card className="p-3 mt-3" contentEditable>
-          <p>
-            The assignment is{" "}
-            <span className="text-danger">available online</span>
-          </p>
-          <p>
-            Submit a link to the landing page of your Web application running on{" "}
-            <a href="#">Netlify</a>.
-          </p>
-          <p>The landing page should include the following:</p>
-          <ul>
-            <li>Your full name and section</li>
-            <li>Links to each of the lab assignments</li>
-            <li>
-              Link to the <a href="#">Kanbas</a> application
-            </li>
-            <li>Links to all relevant source code repositories</li>
-          </ul>
-          <p>
-            The <a href="#">Kanbas</a> application should include a link to
-            navigate back to the landing page.
-          </p>
-        </Card>
+        <Form.Group controlId="assignmentDescription" className="mt-3">
+          <Form.Control as="textarea" defaultValue={assignment?.description} />
+        </Form.Group>
 
         <Row className="mt-3">
           <Col className="d-flex align-items-center">
@@ -44,7 +30,11 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Form.Group>
-              <Form.Control id="points" type="number" defaultValue="100" />
+              <Form.Control
+                id="points"
+                type="number"
+                defaultValue={assignment?.points}
+              />
             </Form.Group>
           </Col>
         </Row>
@@ -59,7 +49,7 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Form.Group>
-              <Form.Select id="assignmentGroup" defaultValue="ASSIGNMENTS">
+              <Form.Select id="assignmentGroup" defaultValue={assignment?.assignmentGroup.toUpperCase()}>
                 <option>ASSIGNMENTS</option>
               </Form.Select>
             </Form.Group>
@@ -76,7 +66,7 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Form.Group>
-              <Form.Select id="displayGrade" defaultValue="Percentage">
+              <Form.Select id="displayGrade" defaultValue={assignment?.displayType}>
                 <option>Percentage</option>
               </Form.Select>
             </Form.Group>
@@ -93,7 +83,7 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Card className="p-3">
-              <Form.Select id="submissionType" defaultValue="Online">
+              <Form.Select id="submissionType" defaultValue={assignment?.submissionType}>
                 <option>Online</option>
               </Form.Select>
 
@@ -125,7 +115,7 @@ export default function AssignmentEditor() {
             <Card className="p-3">
               <Form.Group controlId="assignTo">
                 <Form.Label className="fw-bold">Assign to</Form.Label>
-                <Form.Select defaultValue="Everyone">
+                <Form.Select defaultValue={assignment?.assignTo}>
                   <option>Everyone</option>
                 </Form.Select>
               </Form.Group>
@@ -134,7 +124,7 @@ export default function AssignmentEditor() {
                 <Form.Label className="fw-bold">Due</Form.Label>
                 <Form.Control
                   type="datetime-local"
-                  defaultValue="2024-05-13T23:59"
+                  defaultValue={assignment?.dueDate ? new Date(assignment.dueDate).toISOString().slice(0, 16) : ""}
                 />
               </Form.Group>
 
@@ -144,7 +134,7 @@ export default function AssignmentEditor() {
                     <Form.Label className="fw-bold">Available from</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      defaultValue="2024-05-06T12:00"
+                      defaultValue={assignment?.releaseDate ? new Date(assignment.releaseDate).toISOString().slice(0, 16) : ""}
                     />
                   </Form.Group>
                 </Col>
@@ -160,10 +150,14 @@ export default function AssignmentEditor() {
         </Row>
 
         <div className="d-flex justify-content-end mt-4">
-          <Button variant="secondary" className="me-2">
-            Cancel
-          </Button>
-          <Button variant="danger">Save</Button>
+          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
+            <Button variant="secondary" className="me-2">
+              Cancel
+            </Button>
+          </Link>
+          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
+            <Button variant="danger">Save</Button>
+          </Link>
         </div>
       </Form>
     </div>

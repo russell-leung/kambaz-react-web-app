@@ -5,8 +5,14 @@ import LessonControlButtons from "../Modules/LessonControlButtons";
 import AssignmentControlButtons from "./AssignmentControlButtons";
 import { MdOutlineAssignment } from "react-icons/md";
 import AssignmentText from "./AssignmentText";
+import { useParams } from "react-router";
+import * as db from "../../Database";
 
 export default function Assignments() {
+  const { cid } = useParams<{ cid: string }>();
+  const assignments = db.assignments.filter(
+    (assignment) => assignment.course === cid
+  );
   return (
     <div id="wd-assignments" className="p-4 pt-0">
       <Row className="mb-4">
@@ -44,60 +50,23 @@ export default function Assignments() {
             {"Assignments".toUpperCase()}
             <AssignmentControlButtons percent={40} />
           </div>
-          
-          <ListGroup className="wd-lessons rounded-0">
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
-              <BsGripVertical className="fs-3" />
-              <MdOutlineAssignment className="me-3 fs-3" />
-              <AssignmentText
-                name="A1"
-                moduleName="Multiple Modules"
-                moduleLink="#"
-                releaseDate="May 6th at 12am"
-                dueDate="May 13th at 11:59pm"
-                points={100}
-              />
-              <div className="wd-assignment-buttons flex-grow-1">
-                <LessonControlButtons />
-              </div>
-            </ListGroup.Item>
-          </ListGroup>
-
-          <ListGroup className="wd-lessons rounded-0">
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
-              <BsGripVertical className="fs-3" />
-              <MdOutlineAssignment className="me-3 fs-3" />
-              <AssignmentText
-                name="A2"
-                moduleName="Multiple Modules"
-                moduleLink="#"
-                releaseDate="May 13th at 12am"
-                dueDate="May 18th at 11:59pm"
-                points={100}
-              />
-              <div className="wd-assignment-buttons flex-grow-1">
-                <LessonControlButtons />
-              </div>
-            </ListGroup.Item>
-          </ListGroup>
-
-          <ListGroup className="wd-lessons rounded-0">
-            <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
-              <BsGripVertical className="fs-3" />
-              <MdOutlineAssignment className="me-3 fs-3" />
-              <AssignmentText
-                name="A3"
-                moduleName="Multiple Modules"
-                moduleLink="#"
-                releaseDate="May 19th at 12am"
-                dueDate="May 28th at 11:59pm"
-                points={100}
-              />
-              <div className="wd-assignment-buttons flex-grow-1">
-                <LessonControlButtons />
-              </div>
-            </ListGroup.Item>
-          </ListGroup>
+          {assignments.map((assignment) => (
+            <ListGroup className="wd-lessons rounded-0" key={assignment._id}>
+              <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
+                <BsGripVertical className="fs-3" />
+                <MdOutlineAssignment className="me-3 fs-3" />
+                <AssignmentText
+                  assignment={assignment}
+                  courseId={cid || ""}
+                  moduleName="Multiple Modules"
+                  moduleLink="#"
+                />
+                <div className="wd-assignment-buttons flex-grow-1">
+                  <LessonControlButtons />
+                </div>
+              </ListGroup.Item>
+            </ListGroup>
+          ))}
         </ListGroup.Item>
       </ListGroup>
     </div>

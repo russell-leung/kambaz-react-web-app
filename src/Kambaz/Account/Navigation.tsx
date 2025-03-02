@@ -1,28 +1,24 @@
-import { Link } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 export default function AccountNavigation() {
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
+  const { pathname } = useLocation();
   return (
     <div id="wd-account-navigation" className="wd list-group fs-5 rounded-0">
-      <Link
-        to="/Kambaz/Account/Signin"
-        id="wd-course-signin-link"
-        className="list-group-item active border border-0"
-      >
-        Signin
-      </Link>
-      <Link
-        to="/Kambaz/Account/Signup"
-        id="wd-course-signup-link"
-        className="list-group-item text-danger border border-0"
-      >
-        Signup
-      </Link>
-      <Link
-        to="/Kambaz/Account/Profile"
-        id="wd-course-profile-link"
-        className="list-group-item text-danger border border-0"
-      >
-        Profile
-      </Link>
+      {links.map((link) => (
+        <Link
+          to={`/Kambaz/Account/${link}`}
+          id={`wd-course-${link.toLowerCase()}-link`}
+          className={`list-group-item ${
+            pathname.includes(link) ? "active" : "text-danger"
+          } border border-0`}
+        >
+          {link}
+        </Link>
+      ))}
     </div>
   );
 }

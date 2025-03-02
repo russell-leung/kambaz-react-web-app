@@ -1,23 +1,60 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { Form } from "react-bootstrap";
 import { Link, useParams } from "react-router";
 import * as db from "../../Database";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAssignment } from "./reducer";
 
 export default function AssignmentEditor() {
-  const { aid, cid } = useParams<{ aid: string, cid: string }>();
-  const assignment = db.assignments.find(
-    (assignment) => assignment._id === aid
+  const dispatch = useDispatch();
+  const { aid, cid } = useParams<{ aid: string; cid: string }>();
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const [assignment, setAssignment] = useState<db.Assignment>(
+    assignments.find((assignment: any) => assignment._id === aid) ?? {
+      _id: aid ?? "",
+      course: cid ?? "",
+      title: "New Assignment",
+      description: "New Assignment Description",
+      points: 100,
+      assignmentGroup: "assignments",
+      displayType: "percentage",
+      submissionType: "online",
+      assignTo: "everyone",
+      releaseDate: "",
+      dueDate: "",
+      untilDate: "",
+    }
   );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setAssignment((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = () => {
+    dispatch(updateAssignment(assignment));
+  }
+
   return (
     <div className="p-4 pt-0">
       <Form>
-        <Form.Group controlId="assignmentName">
+        <Form.Group controlId="title">
           <Form.Label>Assignment Name</Form.Label>
-          <Form.Control type="text" defaultValue={assignment?.title} />
+          <Form.Control
+            type="text"
+            value={assignment.title}
+            onChange={handleChange}
+          />
         </Form.Group>
 
-        <Form.Group controlId="assignmentDescription" className="mt-3">
-          <Form.Control as="textarea" defaultValue={assignment?.description} />
+        <Form.Group controlId="description" className="mt-3">
+          <Form.Control
+            as="textarea"
+            value={assignment.description}
+            onChange={handleChange}
+          />
         </Form.Group>
 
         <Row className="mt-3">
@@ -33,7 +70,8 @@ export default function AssignmentEditor() {
               <Form.Control
                 id="points"
                 type="number"
-                defaultValue={assignment?.points}
+                value={assignment.points}
+                onChange={handleChange}
               />
             </Form.Group>
           </Col>
@@ -49,8 +87,12 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Form.Group>
-              <Form.Select id="assignmentGroup" defaultValue={assignment?.assignmentGroup.toUpperCase()}>
-                <option>ASSIGNMENTS</option>
+              <Form.Select
+                id="assignmentGroup"
+                value={assignment.assignmentGroup}
+                onChange={handleChange}
+              >
+                <option value="assignments">Assignments</option>
               </Form.Select>
             </Form.Group>
           </Col>
@@ -59,15 +101,19 @@ export default function AssignmentEditor() {
         <Row className="mt-3">
           <Col className="d-flex align-items-center">
             <div className="d-flex justify-content-end flex-grow-1">
-              <Form.Label htmlFor="displayGrade" className="m-0">
+              <Form.Label htmlFor="displayType" className="m-0">
                 Display Grade as
               </Form.Label>
             </div>
           </Col>
           <Col sm={8}>
             <Form.Group>
-              <Form.Select id="displayGrade" defaultValue={assignment?.displayType}>
-                <option>Percentage</option>
+              <Form.Select
+                id="displayType"
+                value={assignment.displayType}
+                onChange={handleChange}
+              >
+                <option value="percentage">Percentage</option>
               </Form.Select>
             </Form.Group>
           </Col>
@@ -83,8 +129,12 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={8}>
             <Card className="p-3">
-              <Form.Select id="submissionType" defaultValue={assignment?.submissionType}>
-                <option>Online</option>
+              <Form.Select
+                id="submissionType"
+                value={assignment.submissionType}
+                onChange={handleChange}
+              >
+                <option value="online">Online</option>
               </Form.Select>
 
               <Form.Group className="mt-3 d-flex flex-column gap-2">
@@ -115,8 +165,11 @@ export default function AssignmentEditor() {
             <Card className="p-3">
               <Form.Group controlId="assignTo">
                 <Form.Label className="fw-bold">Assign to</Form.Label>
-                <Form.Select defaultValue={assignment?.assignTo}>
-                  <option>Everyone</option>
+                <Form.Select
+                  value={assignment.assignTo}
+                  onChange={handleChange}
+                >
+                  <option value="everyone">Everyone</option>
                 </Form.Select>
               </Form.Group>
 
@@ -124,24 +177,46 @@ export default function AssignmentEditor() {
                 <Form.Label className="fw-bold">Due</Form.Label>
                 <Form.Control
                   type="datetime-local"
-                  defaultValue={assignment?.dueDate ? new Date(assignment.dueDate).toISOString().slice(0, 16) : ""}
+                  value={
+                    assignment.dueDate
+                      ? new Date(assignment.dueDate).toISOString().slice(0, 16)
+                      : ""
+                  }
+                  onChange={handleChange}
                 />
               </Form.Group>
 
               <Row className="mt-3">
                 <Col>
-                  <Form.Group controlId="availableFrom">
+                  <Form.Group controlId="releaseDate">
                     <Form.Label className="fw-bold">Available from</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      defaultValue={assignment?.releaseDate ? new Date(assignment.releaseDate).toISOString().slice(0, 16) : ""}
+                      value={
+                        assignment.releaseDate
+                          ? new Date(assignment.releaseDate)
+                              .toISOString()
+                              .slice(0, 16)
+                          : ""
+                      }
+                      onChange={handleChange}
                     />
                   </Form.Group>
                 </Col>
                 <Col>
-                  <Form.Group controlId="until">
+                  <Form.Group controlId="untilDate">
                     <Form.Label className="fw-bold">Until</Form.Label>
-                    <Form.Control type="datetime-local" />
+                    <Form.Control
+                      type="datetime-local"
+                      value={
+                        assignment.untilDate
+                          ? new Date(assignment.untilDate)
+                              .toISOString()
+                              .slice(0, 16)
+                          : ""
+                      }
+                      onChange={handleChange}
+                    />
                   </Form.Group>
                 </Col>
               </Row>
@@ -156,7 +231,7 @@ export default function AssignmentEditor() {
             </Button>
           </Link>
           <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
-            <Button variant="danger">Save</Button>
+            <Button variant="danger" onClick={handleSubmit}>Save</Button>
           </Link>
         </div>
       </Form>

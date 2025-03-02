@@ -4,6 +4,7 @@ interface Module {
   description: string;
   course: string;
   lessons?: Lesson[];
+  editing?: boolean;
 }
 
 interface Lesson {
@@ -19,12 +20,13 @@ interface Assignment {
   course: string;
   releaseDate: string;
   dueDate: string;
+  untilDate: string;
   points: number;
   description: string;
   displayType: string;
   assignmentGroup: string;
   submissionType: string;
-  onlineEntryOption: string;
+  onlineEntryOption?: string;
   assignTo: string;
 }
 

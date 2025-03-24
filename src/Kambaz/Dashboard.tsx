@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from "react-router-dom";
 import { Row, Col, Card, Button } from "react-bootstrap";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { addEnrollment, deleteEnrollment } from "./reducer";
 import { v4 as uuidv4 } from "uuid";
+import * as userClient from "./Account/client";
 
 export default function Dashboard({
   courses,
@@ -27,29 +27,51 @@ export default function Dashboard({
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
   const [showAllCourses, setShowAllCourses] = useState(false);
-  const isUserEnrolled = (course: any) =>
-    enrollments.find(
-      (enrollment: any) =>
-        enrollment.user === currentUser._id && enrollment.course === course._id
-    );
-  const userCourses = showAllCourses
-    ? courses
-    : courses.filter((course) => isUserEnrolled(course));
+  const [userCourses, setUserCourses] = useState<any[]>([]);
+  const [myCourses, setMyCourses] = useState<any[]>([]);
 
-  const toggleEnrollment = (course: any) => {
-    const enrollment = isUserEnrolled(course);
+  const toggleEnrollment = async (course: any) => {
+    const enrollment = enrollments.find(
+      (enrollment: any) => enrollment.course === course._id && enrollment.user === currentUser._id
+    );
     if (enrollment) {
-      dispatch(deleteEnrollment({enrollmentId: enrollment._id}));
+      await userClient.deleteEnrollment(enrollment._id);
+      dispatch(deleteEnrollment({ enrollmentId: enrollment._id }));
     } else {
+      const newId = uuidv4();
+      await userClient.addEnrollment({
+        _id: newId,
+        user: currentUser._id,
+        course: course._id,
+      });
       dispatch(
         addEnrollment({
-          _id: uuidv4(),
+          _id: newId,
           user: currentUser._id,
           course: course._id,
         })
       );
     }
   };
+
+  const fetchMyCourses = async () => {
+    try {
+      const myCourses = await userClient.findMyCourses();
+      setMyCourses(myCourses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const isUserEnrolled = (course: any) =>
+    myCourses.find((myCourse: any) => myCourse._id === course._id);
+
+  useEffect(() => {
+    fetchMyCourses();
+  }, [currentUser, courses, enrollments]);
+  useEffect(() => {
+    setUserCourses(showAllCourses ? courses : myCourses);
+  }, [showAllCourses, courses, myCourses]);
 
   return (
     <div id="wd-dashboard">

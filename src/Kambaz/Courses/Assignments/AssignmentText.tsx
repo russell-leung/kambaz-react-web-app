@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Row, Col } from "react-bootstrap";
 import { Link } from "react-router";
-import { Assignment } from "../../Database";
 import { useSelector } from "react-redux";
 
 interface AssignmentTextProps {
-  assignment: Assignment;
+  assignment: any;
   courseId: string;
   moduleName: string;
   moduleLink: string;

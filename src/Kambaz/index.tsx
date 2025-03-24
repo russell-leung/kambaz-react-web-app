@@ -12,7 +12,7 @@ import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
 import { useDispatch } from "react-redux";
 import { setEnrollments } from "./reducer";
-import * as usersClient from "./Account/client";
+import * as enrollmentsClient from "./client";
 
 export default function Kambaz() {
   const dispatch = useDispatch();
@@ -27,8 +27,18 @@ export default function Kambaz() {
     }
   };
 
+  const fetchEnrollments = async () => {
+    try {
+      const enrollments = await enrollmentsClient.getAllEnrollments();
+      dispatch(setEnrollments(enrollments.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchAllCourses();
+    fetchEnrollments();
   }, []);
 
   const [course, setCourse] = useState<any>({
@@ -42,7 +52,8 @@ export default function Kambaz() {
 
   const addNewCourse = async () => {
     const newCourse = await userClient.createCourse(course);
-    dispatch(setEnrollments(await usersClient.fetchUserEnrollments()));
+    const enrollments = await enrollmentsClient.getAllEnrollments();
+    dispatch(setEnrollments(enrollments.data));
     setCourses([...courses, newCourse]);
   };
 

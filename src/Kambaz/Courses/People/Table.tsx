@@ -1,14 +1,26 @@
 import { Table } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import * as db from "../../Database";
 import { useSelector } from "react-redux";
+import * as courseClient from "../client";
+import { useState, useEffect } from "react";
 
 export default function PeopleTable() {
   const { cid } = useParams();
   const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
+  const [users, setUsers] = useState<any[]>([]);
+  const fetchUsers = async () => {
+    try {
+      const users = await courseClient.findUsersForCourse(cid as string);
+      setUsers(users);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  const { users } = db;
   return (
     <div id="wd-people-table">
       <Table striped>

@@ -4,7 +4,6 @@ import LessonControlButtons from "./LessonControlButtons";
 import { BsGripVertical } from "react-icons/bs";
 import ModuleControlButtons from "./ModuleControlButtons";
 import { useParams } from "react-router";
-import { Module, Lesson } from "../../Database";
 import { useEffect, useState } from "react";
 import * as coursesClient from "../client";
 import * as modulesClient from "./client";
@@ -63,7 +62,7 @@ export default function Modules() {
       <br />
       <ul id="wd-modules" className="list-group rounded-0">
         {modules
-          .map((module: Module) => (
+          .map((module: any) => (
             <li
               className="wd-module list-group-item p-0 mb-5 fs-5 border-gray"
               key={module._id}
@@ -95,7 +94,7 @@ export default function Modules() {
               </div>
               {module.lessons && (
                 <ul className="wd-lessons list-group rounded-0">
-                  {module.lessons.map((lesson: Lesson) => (
+                  {module.lessons.map((lesson: any) => (
                     <li
                       className="wd-lesson list-group-item p-3 ps-1"
                       key={lesson._id}

@@ -19,15 +19,32 @@ import { v4 as uuidv4 } from "uuid";
 import { useSelector } from "react-redux";
 import { deleteAssignment } from "./reducer";
 import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as courseClient from "../client";
+import * as assignmentClient from "./client";
 
 export default function Assignments() {
   const dispatch = useDispatch();
   const { cid } = useParams<{ cid: string }>();
-  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteAssignemntId, setDeleteAssignmentId] = useState("");
+  const [assignments, setAssignments] = useState<any[]>([]);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  const fetchAssignments = async () => {
+    try {
+      const assignments = await courseClient.findAssignmentsForCourse(
+        cid || ""
+      );
+      setAssignments(assignments);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
 
   const openDeleteModal = (assignment: any) => {
     setShowDeleteModal(true);
@@ -36,6 +53,13 @@ export default function Assignments() {
 
   const handleClose = () => {
     setShowDeleteModal(false);
+  };
+
+  const handleDelete = async () => {
+    await assignmentClient.deleteAssignment(deleteAssignemntId);
+    dispatch(deleteAssignment({ assignmentId: deleteAssignemntId }));
+    fetchAssignments();
+    handleClose();
   };
 
   return (
@@ -79,32 +103,30 @@ export default function Assignments() {
             {"Assignments".toUpperCase()}
             <AssignmentControlButtons percent={40} />
           </div>
-          {assignments
-            .filter((assignment: any) => assignment.course === cid)
-            .map((assignment: any) => (
-              <ListGroup className="wd-lessons rounded-0" key={assignment._id}>
-                <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
-                  <BsGripVertical className="fs-3" />
-                  <MdOutlineAssignment className="me-3 fs-3" />
-                  <AssignmentText
-                    assignment={assignment}
-                    courseId={cid || ""}
-                    moduleName="Multiple Modules"
-                    moduleLink="#"
-                  />
-                  <div className="wd-assignment-buttons flex-grow-1">
-                    <div>
-                      <LessonControlButtons
-                        showTrash={true}
-                        onDelete={() => {
-                          openDeleteModal(assignment);
-                        }}
-                      />
-                    </div>
+          {assignments.map((assignment: any) => (
+            <ListGroup className="wd-lessons rounded-0" key={assignment._id}>
+              <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center">
+                <BsGripVertical className="fs-3" />
+                <MdOutlineAssignment className="me-3 fs-3" />
+                <AssignmentText
+                  assignment={assignment}
+                  courseId={cid || ""}
+                  moduleName="Multiple Modules"
+                  moduleLink="#"
+                />
+                <div className="wd-assignment-buttons flex-grow-1">
+                  <div>
+                    <LessonControlButtons
+                      showTrash={true}
+                      onDelete={() => {
+                        openDeleteModal(assignment);
+                      }}
+                    />
                   </div>
-                </ListGroup.Item>
-              </ListGroup>
-            ))}
+                </div>
+              </ListGroup.Item>
+            </ListGroup>
+          ))}
         </ListGroup.Item>
       </ListGroup>
       <Modal show={showDeleteModal} onHide={handleClose}>
@@ -117,13 +139,7 @@ export default function Assignments() {
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              dispatch(deleteAssignment(deleteAssignemntId));
-              handleClose();
-            }}
-          >
+          <Button variant="danger" onClick={handleDelete}>
             Delete Assignment
           </Button>
         </Modal.Footer>

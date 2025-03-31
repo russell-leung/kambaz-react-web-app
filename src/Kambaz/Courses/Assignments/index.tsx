@@ -26,15 +26,18 @@ import * as assignmentClient from "./client";
 export default function Assignments() {
   const dispatch = useDispatch();
   const { cid } = useParams<{ cid: string }>();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteAssignemntId, setDeleteAssignmentId] = useState("");
   const [assignments, setAssignments] = useState<any[]>([]);
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [searchText, setSearchText] = useState("");
 
   const fetchAssignments = async () => {
     try {
       const assignments = await courseClient.findAssignmentsForCourse(
-        cid || ""
+        cid as string,
+        searchText
       );
       setAssignments(assignments);
     } catch (error) {
@@ -44,7 +47,7 @@ export default function Assignments() {
 
   useEffect(() => {
     fetchAssignments();
-  }, []);
+  }, [searchText]);
 
   const openDeleteModal = (assignment: any) => {
     setShowDeleteModal(true);
@@ -70,11 +73,16 @@ export default function Assignments() {
             <InputGroup.Text>
               <FaMagnifyingGlass />
             </InputGroup.Text>
-            <Form.Control type="text" placeholder="Search.." />
+            <Form.Control
+              type="text"
+              placeholder="Search.."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
           </InputGroup>
         </Col>
         <Col sm={6} md={12} lg={6}>
-          {currentUser.role === "FACULTY" && (
+          {(currentUser.role === "FACULTY" || currentUser.role === "ADMIN") && (
             <Link to={`/Kambaz/Courses/${cid}/Assignments/${uuidv4()}`}>
               <Button variant="danger" size="lg" className="me-1 float-end">
                 <FaPlus

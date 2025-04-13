@@ -19,7 +19,7 @@ export default function AssignmentText({
   return (
     <Row>
       <Col sm={12} className="fw-bold">
-        {currentUser.role === "FACULTY" ? (
+        {(currentUser.role === "FACULTY" || currentUser.role === "ADMIN") ? (
           <Link
             to={`/Kambaz/Courses/${courseId}/Assignments/${assignment._id}`}
             className="text-decoration-none text-dark"
